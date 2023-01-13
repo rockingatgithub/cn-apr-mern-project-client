@@ -13,6 +13,10 @@ class App extends Component {
       user: {}
     }
   }
+
+  loginHandler = user => {
+    this.setState({isLoggedIn: true, user })
+  }
   
 
   componentDidMount = async () => {
@@ -26,7 +30,7 @@ class App extends Component {
       const parsedResponse = await response.json()
       console.log("the response", parsedResponse)
       if(response.status === 200){
-        this.setState({isLoggedIn: true, user: parsedResponse.user})
+        this.loginHandler(parsedResponse.user)
       }
     }
   }
@@ -37,8 +41,8 @@ class App extends Component {
       <div>
 
         {isLoggedIn ? <Profile user={user} /> : <>
-          <Form type="signup" />
-          <Form type="signin" />
+          <Form type="signup" loginHandler={this.loginHandler} />
+          <Form type="signin" loginHandler={this.loginHandler} />
         </>}
 
         

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Profile from './Profile';
 
 class Form extends Component {
 
@@ -10,8 +9,7 @@ class Form extends Component {
             name: '',
             email: '',
             password: '',
-            user: {},
-            isLoggedIn: false,
+            phone: '',
             userType: 'customer'
         }
     }
@@ -38,15 +36,20 @@ class Form extends Component {
         this.setState({userType: event.target.value})
     }
 
+    phoneChangeHandler = (event) => {
+        this.setState({phone: event.target.value})
+    }
+
     submitHandler = async (event) => {
         event.preventDefault()
-        const {email, name, password, user, userType} = this.state
+        const {email, name, password, userType, phone} = this.state
         const {type} = this.props
 
         const userObj = {
             email,
             password,
-            name
+            name,
+            phone
         }
 
         const response = await fetch(`http://localhost:8000/${userType}/${type}`, {
@@ -60,7 +63,7 @@ class Form extends Component {
         const parsedRes = await response.json()
         console.log("the user", parsedRes)
         if(response.status === 200) {
-            this.setState({ isLoggedIn: true, user: parsedRes.client })
+            this.props.loginHandler(parsedRes.client)
             document.cookie = 'user=' + parsedRes.token
         }
     }
@@ -68,13 +71,11 @@ class Form extends Component {
 
     render() {
 
-        const {email, name, password, user, isLoggedIn} = this.state
+        const {email, name, password, phone} = this.state
         const {type} = this.props
 
         return (
-            <div>
-                {isLoggedIn ? 
-                <Profile user={user} /> : 
+                
                 <> 
                     <h1> {type} Form </h1>
                     <form onSubmit={this.submitHandler} >
@@ -82,6 +83,7 @@ class Form extends Component {
                         Email:<input type="email" value={email} onChange={this.emailChangeHandler} />
                         <br/>
                         Password:-<input type="password" value={password} onChange={this.passwordChangeHandler} />
+                        {type === 'signup' && <>Phone:-<input type="tel" value={phone} onChange={this.phoneChangeHandler} /></>}
                         <div>
                             UserType:- 
                             Client<input type="radio" name='userType' value="client" onChange={this.userTypehandler} />
@@ -91,8 +93,6 @@ class Form extends Component {
                         <button type='submit' > {type} </button>
                     </form>
                 </>
-                }
-            </div>
         );
     }
 }
