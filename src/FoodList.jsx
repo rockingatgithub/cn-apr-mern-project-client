@@ -1,4 +1,7 @@
+import { connect } from 'react-redux';
 import React, { Component, useState } from 'react';
+import { fetchFood } from './actions';
+import { Theme } from './App';
 
 
 const FoodItem = ({ food, userID, foodId  }) => {
@@ -28,6 +31,9 @@ const FoodItem = ({ food, userID, foodId  }) => {
     }
 
     return <li> 
+
+    <Theme.Consumer>{value=><div>{value}</div>}</Theme.Consumer>
+
     <span>{food.name}</span>
     Price:- <span>{food.price}</span>
 
@@ -40,27 +46,13 @@ const FoodItem = ({ food, userID, foodId  }) => {
 
 class FoodList extends Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            foods: [],
-        }
-    }
-
     componentDidMount = async () => {
-        const response = await fetch('http://localhost:8000/food/allFood')
-        const parsedResponse = await response.json()
-
-        if(response.status === 200) {
-            this.setState({ foods: parsedResponse.foods})
-        }
+        this.props.dispatch(fetchFood())
     }
-    
-    
 
     render() {
 
-        const {foods} = this.state
+        const {foods} = this.props.main
 
         return (
             <div>
@@ -73,4 +65,8 @@ class FoodList extends Component {
     }
 }
 
-export default FoodList;
+const mapStateToProps = (state) => {
+    return { main: state }
+}
+
+export default connect(mapStateToProps)(FoodList);

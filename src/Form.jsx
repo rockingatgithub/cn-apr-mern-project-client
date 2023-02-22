@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { userLogin } from './actions';
 
 class Form extends Component {
 
@@ -12,6 +14,18 @@ class Form extends Component {
             phone: '',
             userType: 'customer'
         }
+
+        this.myRef = React.createRef()
+        this.passowrd = null
+        this.setPasswordRef = ele => {
+            this.passowrd = ele
+        }
+    }
+
+    componentDidMount = () => {
+        const node = this.myRef.current;
+        // node.focus()
+        // this.passowrd.focus()
     }
 
     nameChangeHandler = (event) => {
@@ -44,28 +58,13 @@ class Form extends Component {
         event.preventDefault()
         const {email, name, password, userType, phone} = this.state
         const {type} = this.props
-
         const userObj = {
             email,
             password,
             name,
             phone
         }
-
-        const response = await fetch(`http://localhost:8000/${userType}/${type}`, {
-            method: 'POST',
-            body: JSON.stringify(userObj),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-
-        const parsedRes = await response.json()
-        console.log("the user", parsedRes)
-        if(response.status === 200) {
-            this.props.loginHandler(parsedRes.client)
-            document.cookie = 'user=' + parsedRes.token
-        }
+        this.props.dispatch(userLogin(userObj, userType, type))
     }
     
 
@@ -80,9 +79,9 @@ class Form extends Component {
                     <h1> {type} Form </h1>
                     <form onSubmit={this.submitHandler} >
                         { type === 'signup' && <>Name:-<input type="text" value={name} onChange={this.nameChangeHandler} /></>}
-                        Email:<input type="email" value={email} onChange={this.emailChangeHandler} />
+                        Email:<input type="email" value={email} onChange={this.emailChangeHandler} ref={this.myRef} />
                         <br/>
-                        Password:-<input type="password" value={password} onChange={this.passwordChangeHandler} />
+                        Password:-<input type="password" value={password} onChange={this.passwordChangeHandler} ref={this.setPasswordRef} />
                         {type === 'signup' && <>Phone:-<input type="tel" value={phone} onChange={this.phoneChangeHandler} /></>}
                         <div>
                             UserType:- 
@@ -97,4 +96,8 @@ class Form extends Component {
     }
 }
 
-export default Form;
+const mapStateToProps = (state) => {
+    return {main: state}
+}
+
+export default  connect(mapStateToProps)(Form);
